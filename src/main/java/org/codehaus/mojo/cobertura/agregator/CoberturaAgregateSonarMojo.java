@@ -71,7 +71,7 @@ public class CoberturaAgregateSonarMojo
             request.setPomFile(project.getFile());
             request.setProfiles(project.getActiveProfiles());
             request.setProperties(project.getProperties());
-            request.setGoals(Arrays.asList("clean", "org.codehaus.mojo:cobertura-maven-plugin:2.5:cobertura-consolidate"));
+            request.setGoals(Arrays.asList("clean", "org.codehaus.mojo:cobertura-maven-plugin:2.5-SNAPSHOT:cobertura-consolidate"));
             try
             {
                 invoker.execute(request);
