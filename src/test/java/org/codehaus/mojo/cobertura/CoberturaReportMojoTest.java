@@ -16,56 +16,61 @@ package org.codehaus.mojo.cobertura;
  * the License.
  */
 
-import java.io.File;
-
-import org.apache.maven.plugin.Mojo;
-import org.apache.maven.reporting.MavenReport;
+import org.apache.maven.model.Reporting;
+import org.apache.maven.project.MavenProject;
+import org.apache.maven.reporting.AbstractMavenReport;
 import org.codehaus.plexus.PlexusTestCase;
+import org.mockito.Mockito;
+
+import java.io.File;
+import java.util.Arrays;
 
 /**
  * @author Edwin Punzalan
  */
 public class CoberturaReportMojoTest
-    extends AbstractCoberturaTestCase
+        extends AbstractCoberturaTestCase
 {
     public void testReport()
-        throws Exception
+            throws Exception
     {
-        Mojo mojo =
-            lookupMojo( "cobertura", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/report-plugin-config.xml" );
+        CoberturaReportMojo reportMojo =
+                (CoberturaReportMojo) lookupMojo("report", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/report-plugin-config.xml");
 
-        setMojoPluginClasspath( mojo );
+        File outputHtml = new File(reportMojo.getReportOutputDirectory(), reportMojo.getOutputName() + ".html");
+        initializeMojoValue(reportMojo, outputHtml.getAbsolutePath());
 
-        MavenReport reportMojo = (MavenReport) mojo;
+        reportMojo.execute();
 
-        assertTrue( "Should be able to generate a report", reportMojo.canGenerateReport() );
 
-        assertTrue( "Should be an externale report", reportMojo.isExternalReport() );
-
-        mojo.execute();
-
-        File outputHtml = new File( reportMojo.getReportOutputDirectory(), reportMojo.getOutputName() + ".html" );
-
-        assertTrue( "Test for generated html file", outputHtml.exists() );
+        assertTrue("Test for generated html file " + outputHtml, outputHtml.exists());
     }
 
     public void testReportEmptySourceDir()
-        throws Exception
+            throws Exception
     {
-        Mojo mojo =
-            lookupMojo( "cobertura", PlexusTestCase.getBasedir() +
-                "/src/test/plugin-configs/report-empty-src-plugin-config.xml" );
+        AbstractMavenReport mojo = (AbstractMavenReport) lookupMojo("report", PlexusTestCase.getBasedir() +
+                "/src/test/plugin-configs/report-empty-src-plugin-config.xml");
 
-        setMojoPluginClasspath( mojo );
+        initializeMojoValue(mojo, null);
 
-        MavenReport reportMojo = (MavenReport) mojo;
-
-        assertFalse( "Should not be able to generate a report", reportMojo.canGenerateReport() );
+        assertFalse("Should not be able to generate a report", mojo.canGenerateReport());
     }
 
-    private void setMojoPluginClasspath( Mojo mojo )
-        throws Exception
+    private void initializeMojoValue(AbstractMavenReport mojo, String outputDirectory)
+            throws Exception
     {
-        setVariableValueToObject( mojo, "pluginClasspathList", getPluginClasspath() );
+        setVariableValueToObject(mojo, "pluginClasspathList", getPluginClasspath());
+
+        MavenProject mavenProjectStub = Mockito.mock(MavenProject.class);
+        Mockito.when(mavenProjectStub.getBasedir()).thenReturn(new File(PlexusTestCase.getBasedir()));
+
+        Reporting reporting = new Reporting();
+        reporting.setOutputDirectory(outputDirectory);
+        Mockito.when(mavenProjectStub.getReporting()).thenReturn(reporting);
+
+        setVariableValueToObject(mojo, "useConsolidated", false);
+        setVariableValueToObject(mojo, "reactorProjects", Arrays.asList(mavenProjectStub));
+        setVariableValueToObject(mojo, "project", mavenProjectStub);
     }
 }
