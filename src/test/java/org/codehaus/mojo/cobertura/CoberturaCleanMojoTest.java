@@ -16,29 +16,31 @@ package org.codehaus.mojo.cobertura;
  * the License.
  */
 
-import java.io.File;
-
 import org.apache.maven.plugin.Mojo;
 import org.codehaus.plexus.PlexusTestCase;
+import org.junit.Test;
+
+import java.io.File;
 
 /**
  * @author Edwin Punzalan
  */
 public class CoberturaCleanMojoTest
-    extends AbstractCoberturaTestCase
+        extends AbstractCoberturaTestCase
 {
+    @Test
     public void testClean()
-        throws Exception
+            throws Exception
     {
         Mojo mojo =
-            lookupMojo( "clean", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/clean-plugin-config.xml" );
+                lookupMojo("clean", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/clean-plugin-config.xml");
 
-        File dataFile = (File) getVariableValueFromObject( mojo, "dataFile" );
+        File dataFile = (File) getVariableValueFromObject(mojo, "dataFile");
 
-        assertTrue( "Test if the ser file has been prepared", dataFile.exists() );
+        assertTrue("Test if the ser file has been prepared", dataFile.exists());
 
         mojo.execute();
 
-        assertFalse( "ser file must have been deleted", dataFile.exists() );
+        assertFalse("ser file must have been deleted", dataFile.exists());
     }
 }

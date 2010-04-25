@@ -16,156 +16,164 @@ package org.codehaus.mojo.cobertura;
  * the License.
  */
 
-import java.io.File;
-
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.codehaus.plexus.PlexusTestCase;
+import org.junit.Test;
+
+import java.io.File;
 
 /**
  * @author Edwin Punzalan
  */
 public class CoberturaCheckMojoTest
-    extends AbstractCoberturaTestCase
+        extends AbstractCoberturaTestCase
 {
+    @Test
     public void testMojo()
-        throws Exception
+            throws Exception
     {
         Mojo mojo =
-            lookupMojo( "check", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/check-plugin-config.xml" );
+                lookupMojo("check", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/check-plugin-config.xml");
 
-        setVariableValueToObject( mojo, "pluginClasspathList", getPluginClasspath() );
+        setVariableValueToObject(mojo, "pluginClasspathList", getPluginClasspath());
 
         mojo.execute();
     }
 
+    @Test
     public void testCheckWithRegexPassing()
-        throws Exception
+            throws Exception
     {
         Mojo mojo =
-            lookupMojo( "check", PlexusTestCase.getBasedir() +
-                "/src/test/plugin-configs/check-regex-pass-plugin-config.xml" );
+                lookupMojo("check", PlexusTestCase.getBasedir() +
+                        "/src/test/plugin-configs/check-regex-pass-plugin-config.xml");
 
-        setVariableValueToObject( mojo, "pluginClasspathList", getPluginClasspath() );
+        setVariableValueToObject(mojo, "pluginClasspathList", getPluginClasspath());
 
         mojo.execute();
     }
 
+    @Test
     public void testCheckWithRegexFailing()
-        throws Exception
+            throws Exception
     {
         Mojo mojo =
-            lookupMojo( "check", PlexusTestCase.getBasedir() +
-                "/src/test/plugin-configs/check-regex-fail-plugin-config.xml" );
+                lookupMojo("check", PlexusTestCase.getBasedir() +
+                        "/src/test/plugin-configs/check-regex-fail-plugin-config.xml");
 
-        setVariableValueToObject( mojo, "pluginClasspathList", getPluginClasspath() );
+        setVariableValueToObject(mojo, "pluginClasspathList", getPluginClasspath());
 
         try
         {
             mojo.execute();
 
-            fail( "regex should fail at < 100% coverage" );
+            fail("regex should fail at < 100% coverage");
         }
-        catch ( MojoExecutionException e )
+        catch (MojoExecutionException e)
         {
-            if ( !e.getMessage().equals( "Coverage check failed. See messages above." ) )
+            if (!e.getMessage().equals("Coverage check failed. See messages above."))
             {
-                fail( "Unexpected exception thrown" );
+                fail("Unexpected exception thrown");
             }
         }
     }
 
+    @Test
     public void testCheckFailure()
-        throws Exception
+            throws Exception
     {
         Mojo mojo =
-            lookupMojo( "check", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/check-halt-plugin-config.xml" );
+                lookupMojo("check", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/check-halt-plugin-config.xml");
 
-        setVariableValueToObject( mojo, "pluginClasspathList", getPluginClasspath() );
+        setVariableValueToObject(mojo, "pluginClasspathList", getPluginClasspath());
 
         try
         {
             mojo.execute();
 
-            fail( "Should fail when rates are not satisfied" );
+            fail("Should fail when rates are not satisfied");
         }
-        catch ( MojoExecutionException e )
+        catch (MojoExecutionException e)
         {
-            if ( !e.getMessage().equals( "Coverage check failed. See messages above." ) )
+            if (!e.getMessage().equals("Coverage check failed. See messages above."))
             {
-                fail( "Unexpected exception thrown" );
+                fail("Unexpected exception thrown");
             }
         }
     }
 
+    @Test
     public void testCheckFailureNoHalt()
-        throws Exception
+            throws Exception
     {
         Mojo mojo =
-            lookupMojo( "check", PlexusTestCase.getBasedir() +
-                "/src/test/plugin-configs/check-no-halt-plugin-config.xml" );
+                lookupMojo("check", PlexusTestCase.getBasedir() +
+                        "/src/test/plugin-configs/check-no-halt-plugin-config.xml");
 
-        setVariableValueToObject( mojo, "pluginClasspathList", getPluginClasspath() );
+        setVariableValueToObject(mojo, "pluginClasspathList", getPluginClasspath());
 
         try
         {
             mojo.execute();
         }
-        catch ( MojoExecutionException e )
+        catch (MojoExecutionException e)
         {
-            if ( e.getMessage().equals( "Coverage check failed. See messages above." ) )
+            if (e.getMessage().equals("Coverage check failed. See messages above."))
             {
-                fail( "Should fail when rates are not satisfied" );
+                fail("Should fail when rates are not satisfied");
             }
             else
             {
-                fail( "Unexpected exception" );
+                fail("Unexpected exception");
             }
         }
     }
 
+    @Test
     public void testNoCheckParameter()
-        throws Exception
+            throws Exception
     {
         Mojo mojo =
-            lookupMojo( "check", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/check-plugin-config.xml" );
+                lookupMojo("check", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/check-plugin-config.xml");
 
-        setVariableValueToObject( mojo, "pluginClasspathList", getPluginClasspath() );
+        setVariableValueToObject(mojo, "pluginClasspathList", getPluginClasspath());
 
-        setVariableValueToObject( mojo, "check", null );
+        setVariableValueToObject(mojo, "check", null);
 
         try
         {
             mojo.execute();
 
-            fail( "Should fail on null check parameter" );
+            fail("Should fail on null check parameter");
         }
-        catch ( MojoExecutionException e )
+        catch (MojoExecutionException e)
         {
-            if ( !e.getMessage().equals( "The Check configuration is missing." ) )
+            if (!e.getMessage().equals("The Check configuration is missing."))
             {
-                fail( "Unexpected exception" );
+                fail("Unexpected exception");
             }
         }
     }
 
+    @Test
     public void testNoDataFileParameter()
-        throws Exception
+            throws Exception
     {
         Mojo mojo =
-            lookupMojo( "check", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/check-plugin-config.xml" );
+                lookupMojo("check", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/check-plugin-config.xml");
 
-        setVariableValueToObject( mojo, "pluginClasspathList", getPluginClasspath() );
+        setVariableValueToObject(mojo, "pluginClasspathList", getPluginClasspath());
 
-        setVariableValueToObject( mojo, "dataFile", new File( PlexusTestCase.getBasedir() + "/no/such/file" ) );
+        setVariableValueToObject(mojo, "dataFile", new File(PlexusTestCase.getBasedir() + "/no/such/file"));
 
         try
         {
             mojo.execute();
         }
-        catch ( MojoExecutionException e )
+        catch (MojoExecutionException e)
         {
-            fail( "Should not fail" );
+            fail("Should not fail");
         }
     }
 }

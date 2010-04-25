@@ -16,67 +16,70 @@ package org.codehaus.mojo.cobertura;
  * the License.
  */
 
-import java.io.File;
-
 import org.apache.maven.plugin.Mojo;
 import org.apache.maven.plugin.logging.Log;
 import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.PlexusTestCase;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import java.io.File;
 
 /**
  * @author Edwin Punzalan
  */
 public class CoberturaInstrumentMojoTest
-    extends AbstractCoberturaTestCase
+        extends AbstractCoberturaTestCase
 {
     private String dataFile;
 
-    protected void setUp()
-        throws Exception
+    @Before
+    protected void before()
+            throws Exception
     {
-        super.setUp();
-
-        dataFile = System.getProperty( "net.sourceforge.cobertura.datafile" );
+        dataFile = System.getProperty("net.sourceforge.cobertura.datafile");
     }
 
-    protected void tearDown()
-        throws Exception
+    @After
+    protected void after()
+            throws Exception
     {
-        if ( dataFile != null )
+        if (dataFile != null)
         {
-            System.setProperty( "net.sourceforge.cobertura.datafile", dataFile );
+            System.setProperty("net.sourceforge.cobertura.datafile", dataFile);
         }
-
-        super.tearDown();
     }
 
+    @Test
     public void testDefault()
-        throws Exception
+            throws Exception
     {
         Mojo mojo =
-            lookupMojo( "instrument", PlexusTestCase.getBasedir() +
-                "/src/test/plugin-configs/instrument-plugin-config.xml" );
+                lookupMojo("instrument", PlexusTestCase.getBasedir() +
+                        "/src/test/plugin-configs/instrument-plugin-config.xml");
 
-        setVariableValueToObject( mojo, "pluginClasspathList", getPluginClasspath() );
+        setVariableValueToObject(mojo, "pluginClasspathList", getPluginClasspath());
 
         mojo.execute();
 
-        MavenProject project = (MavenProject) getVariableValueFromObject( mojo, "project" );
+        MavenProject project = (MavenProject) getVariableValueFromObject(mojo, "project");
 
-        File instrumentedDir = new File( project.getBuild().getOutputDirectory() );
+        File instrumentedDir = new File(project.getBuild().getOutputDirectory());
 
-        assertTrue( "Test instrumented class exists", new File( instrumentedDir, "Circle.class" ).exists() );
+        assertTrue("Test instrumented class exists", new File(instrumentedDir, "Circle.class").exists());
     }
 
+    @Test
     public void testDebugEnabled()
-        throws Exception
+            throws Exception
     {
         Mojo mojo =
-            lookupMojo( "instrument", PlexusTestCase.getBasedir() +
-                "/src/test/plugin-configs/instrument-plugin-config.xml" );
+                lookupMojo("instrument", PlexusTestCase.getBasedir() +
+                        "/src/test/plugin-configs/instrument-plugin-config.xml");
 
-        setVariableValueToObject( mojo, "pluginClasspathList", getPluginClasspath() );
+        setVariableValueToObject(mojo, "pluginClasspathList", getPluginClasspath());
 
         Log log = new SystemStreamLog()
         {
@@ -86,25 +89,26 @@ public class CoberturaInstrumentMojoTest
             }
         };
 
-        setVariableValueToObject( mojo, "log", log );
+        setVariableValueToObject(mojo, "log", log);
 
         mojo.execute();
 
-        MavenProject project = (MavenProject) getVariableValueFromObject( mojo, "project" );
+        MavenProject project = (MavenProject) getVariableValueFromObject(mojo, "project");
 
-        File instrumentedDir = new File( project.getBuild().getOutputDirectory() );
+        File instrumentedDir = new File(project.getBuild().getOutputDirectory());
 
-        assertTrue( "Test instrumented class exists", new File( instrumentedDir, "Circle.class" ).exists() );
+        assertTrue("Test instrumented class exists", new File(instrumentedDir, "Circle.class").exists());
     }
 
+    @Test
     public void testInstrumentation()
-        throws Exception
+            throws Exception
     {
         Mojo mojo =
-            lookupMojo( "instrument", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/" +
-                "instrument-instrumentation-plugin-config.xml" );
+                lookupMojo("instrument", PlexusTestCase.getBasedir() + "/src/test/plugin-configs/" +
+                        "instrument-instrumentation-plugin-config.xml");
 
-        setVariableValueToObject( mojo, "pluginClasspathList", getPluginClasspath() );
+        setVariableValueToObject(mojo, "pluginClasspathList", getPluginClasspath());
 
         Log log = new SystemStreamLog()
         {
@@ -114,14 +118,14 @@ public class CoberturaInstrumentMojoTest
             }
         };
 
-        setVariableValueToObject( mojo, "log", log );
+        setVariableValueToObject(mojo, "log", log);
 
         mojo.execute();
 
-        MavenProject project = (MavenProject) getVariableValueFromObject( mojo, "project" );
+        MavenProject project = (MavenProject) getVariableValueFromObject(mojo, "project");
 
-        File instrumentedDir = new File( project.getBuild().getOutputDirectory() );
+        File instrumentedDir = new File(project.getBuild().getOutputDirectory());
 
-        assertTrue( "Test instrumented class exists", new File( instrumentedDir, "Circle.class" ).exists() );
+        assertTrue("Test instrumented class exists", new File(instrumentedDir, "Circle.class").exists());
     }
 }
