@@ -1,0 +1,85 @@
+ ------
+ Cross-module coverage
+ ------
+ Anthonin Bonnefoy
+ ------
+ 2010-04-20
+ ------
+
+
+Cross-module coverage
+
+  The Cobertura plugin can produce a cross-module coverage of your code.
+  This feature is particularly useful if you separate your tests in another module,
+  your tests will be able to participate in the coverage.
+
+* Configuration
+
+  You need to specify the groupId you wish to covered. This will cause all dependencies from the 
+  given groupId to be instrumented by cobertura.
+  You need to activate "useConsolidated" to tell report mojo to use consolidated coverage.
+
++-----+
+<project>
+    ...
+    <build>
+        <plugins>
+        
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <configuration>
+                    <useConsolidated>true</useConsolidated>
+                    <instrumentation>
+                        <includesGroupId>
+                            <includeGroupId>${groupId}</includeGroupId>
+                        </includesGroupId>
+                    </instrumentation>
+                </configuration>
+            </plugin>
+            
+        </plugins>
+   </build>
+</project>
++-----+
+
+* Execution with sonar
+
+  You can run a consolidated cobertura check along with a sonar goal. Use this configuration :
+
++-----+
+<project>
+    ...
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <configuration>
+                    <useConsolidated>true</useConsolidated>
+                    <formats>
+                        <format>xml</format>
+                    </formats>
+                    <instrumentation>
+                        <includesGroupId>
+                            <includeGroupId>${groupId}</includeGroupId>
+                        </includesGroupId>
+                    </instrumentation>
+                </configuration>
+            </plugin>
+
+        </plugins>
+   </build>
+</project>
++-----+
+
+  Use the goal cobertura-sonar along with sonar:sonar.
+
+--------------------------------------------
+mvn cobertura:cobertura-sonar sonar:sonar -DskipTests=true
+--------------------------------------------
+
+  cobertura-sonar will always run tests and you need skip tests so that they won't launch them twice.
+
+

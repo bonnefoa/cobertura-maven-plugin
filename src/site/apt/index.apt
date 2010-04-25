@@ -30,7 +30,15 @@ Cobertura Maven Plugin
 
   * {{{instrument-mojo.html}cobertura:instrument}} Instrument the compiled classes.
 
+  * {{{consolidate-mojo.html}cobertura:consolidate}} Consolidate coverage results of all modules.
+
+  * {{{report-mojo.html}cobertura:report}} Generates a Cobertura Report.
+
   * {{{cobertura-mojo.html}cobertura:cobertura}} Instruments, Tests, and Generates a Cobertura Report.
+
+  * {{{cobertura-consolidate-mojo.html}cobertura:cobertura-consolidate}} Instruments, Tests, consolidates and Generates a Cobertura Report.
+
+  * {{{cobertura-sonar-mojo.html}cobertura:cobertura-sonar}} Clean, Instruments, Tests, consolidates and Generates a Cobertura Report prior to any maven goal. 
 
 * Usage
 
@@ -42,3 +50,5 @@ Cobertura Maven Plugin
   Maven Plugin, you can take a look into the following example:
 
   * {{{examples/report-formats.html}Report Formats}}
+
+  * {{{examples/cross-module.html}Cross-module coverage}}
