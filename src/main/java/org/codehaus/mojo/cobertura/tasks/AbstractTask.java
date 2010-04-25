@@ -19,14 +19,6 @@ package org.codehaus.mojo.cobertura.tasks;
  * under the License.
  */
 
-import java.io.File;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.lang.SystemUtils;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -37,9 +29,17 @@ import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+
 /**
  * Base Abstract Class for all of the Tasks.
- * 
+ *
  * @author <a href="mailto:joakim@erdfelt.com">Joakim Erdfelt</a>
  */
 public abstract class AbstractTask
@@ -50,7 +50,7 @@ public abstract class AbstractTask
 
     private String maxmem;
 
-    private List pluginClasspathList;
+    private Collection pluginClasspathList;
 
     private String taskClass;
 
@@ -58,10 +58,10 @@ public abstract class AbstractTask
 
     /**
      * Initialize AbstractTask.
-     * 
+     *
      * @param taskClassname the classname for the task.
      */
-    protected AbstractTask( String taskClassname )
+    protected AbstractTask(String taskClassname)
     {
         taskClass = taskClassname;
         cmdLineArgs = new CommandLineArguments();
@@ -70,17 +70,17 @@ public abstract class AbstractTask
 
     /**
      * Setter for <code>quiet</code>.
-     * 
+     *
      * @param quiet The quiet to set.
      */
-    public void setQuiet( boolean quiet )
+    public void setQuiet(boolean quiet)
     {
         this.quiet = quiet;
     }
 
     /**
      * Getter for <code>quiet</code>.
-     * 
+     *
      * @return Returns the quiet.
      */
     public boolean isQuiet()
@@ -91,28 +91,28 @@ public abstract class AbstractTask
     /**
      * Using the <code>${project.compileClasspathElements}</code> and the <code>${plugin.artifacts}</code>, create
      * a classpath string that is suitable to be used from a forked cobertura process.
-     * 
+     *
      * @return the classpath string
      * @throws MojoExecutionException if the pluginArtifacts cannot be properly resolved to a full system path.
      */
     public String createClasspath()
-        throws MojoExecutionException
+            throws MojoExecutionException
     {
 
         StringBuffer cpBuffer = new StringBuffer();
 
-        for ( Iterator it = pluginClasspathList.iterator(); it.hasNext(); )
+        for (Iterator it = pluginClasspathList.iterator(); it.hasNext();)
         {
             Artifact artifact = (Artifact) it.next();
 
             try
             {
-                cpBuffer.append( File.pathSeparator ).append( artifact.getFile().getCanonicalPath() );
+                cpBuffer.append(File.pathSeparator).append(artifact.getFile().getCanonicalPath());
             }
-            catch ( IOException e )
+            catch (IOException e)
             {
-                throw new MojoExecutionException( "Error while creating the canonical path for '" + artifact.getFile()
-                    + "'.", e );
+                throw new MojoExecutionException("Error while creating the canonical path for '" + artifact.getFile()
+                        + "'.", e);
             }
         }
 
@@ -122,11 +122,11 @@ public abstract class AbstractTask
     private String getLog4jConfigFile()
     {
         String resourceName = "cobertura-plugin/log4j-info.properties";
-        if ( getLog().isDebugEnabled() )
+        if (getLog().isDebugEnabled())
         {
             resourceName = "cobertura-plugin/log4j-debug.properties";
         }
-        if ( quiet )
+        if (quiet)
         {
             resourceName = "cobertura-plugin/log4j-error.properties";
         }
@@ -134,17 +134,17 @@ public abstract class AbstractTask
         String path = null;
         try
         {
-            File log4jconfigFile = File.createTempFile( "log4j", "config.properties" );
-            URL log4jurl = this.getClass().getClassLoader().getResource( resourceName );
-            FileUtils.copyURLToFile( log4jurl, log4jconfigFile );
+            File log4jconfigFile = File.createTempFile("log4j", "config.properties");
+            URL log4jurl = this.getClass().getClassLoader().getResource(resourceName);
+            FileUtils.copyURLToFile(log4jurl, log4jconfigFile);
             log4jconfigFile.deleteOnExit();
             path = log4jconfigFile.toURL().toExternalForm();
         }
-        catch ( MalformedURLException e )
+        catch (MalformedURLException e)
         {
             // ignore
         }
-        catch ( IOException e )
+        catch (IOException e)
         {
             // ignore
         }
@@ -152,47 +152,47 @@ public abstract class AbstractTask
     }
 
     public abstract void execute()
-        throws MojoExecutionException;
+            throws MojoExecutionException;
 
     protected int executeJava()
-        throws MojoExecutionException
+            throws MojoExecutionException
     {
         Commandline cl = new Commandline();
-        File java = new File( SystemUtils.getJavaHome(), "bin/java" );
-        cl.setExecutable( java.getAbsolutePath() );
-        cl.createArg().setValue( "-cp" );
-        cl.createArg().setValue( createClasspath() );
+        File java = new File(SystemUtils.getJavaHome(), "bin/java");
+        cl.setExecutable(java.getAbsolutePath());
+        cl.createArg().setValue("-cp");
+        cl.createArg().setValue(createClasspath());
 
         String log4jConfig = getLog4jConfigFile();
-        if ( log4jConfig != null )
+        if (log4jConfig != null)
         {
-            cl.createArg().setValue( "-Dlog4j.configuration=" + log4jConfig );
+            cl.createArg().setValue("-Dlog4j.configuration=" + log4jConfig);
         }
 
-        cl.createArg().setValue( "-Xmx" + maxmem );
+        cl.createArg().setValue("-Xmx" + maxmem);
 
-        cl.createArg().setValue( taskClass );
+        cl.createArg().setValue(taskClass);
 
-        if ( cmdLineArgs.useCommandsFile() )
+        if (cmdLineArgs.useCommandsFile())
         {
-            cl.createArg().setValue( "--commandsfile" );
+            cl.createArg().setValue("--commandsfile");
             try
             {
                 String commandsFile = cmdLineArgs.getCommandsFile();
-                cl.createArg().setValue( commandsFile );
-                FileUtils.copyFile( new File( commandsFile ), new File( commandsFile + ".bak" ) );
+                cl.createArg().setValue(commandsFile);
+                FileUtils.copyFile(new File(commandsFile), new File(commandsFile + ".bak"));
             }
-            catch ( IOException e )
+            catch (IOException e)
             {
-                throw new MojoExecutionException( "Unable to obtain CommandsFile location.", e );
+                throw new MojoExecutionException("Unable to obtain CommandsFile location.", e);
             }
         }
         else
         {
             Iterator it = cmdLineArgs.iterator();
-            while ( it.hasNext() )
+            while (it.hasNext())
             {
-                cl.createArg().setValue( it.next().toString() );
+                cl.createArg().setValue(it.next().toString());
             }
         }
 
@@ -200,11 +200,11 @@ public abstract class AbstractTask
 
         CommandLineUtils.StringStreamConsumer stderr = new CommandLineUtils.StringStreamConsumer();
 
-        if ( quiet )
+        if (quiet)
         {
             CommandLineUtils.StringStreamConsumer nullConsumer = new CommandLineUtils.StringStreamConsumer()
             {
-                public void consumeLine( String line )
+                public void consumeLine(String line)
                 {
                     // swallow
                 }
@@ -213,42 +213,42 @@ public abstract class AbstractTask
             stderr = nullConsumer;
         }
 
-        getLog().debug( "Working Directory: " + cl.getWorkingDirectory() );
-        getLog().debug( "Executing command line:" );
-        getLog().debug( cl.toString() );
+        getLog().debug("Working Directory: " + cl.getWorkingDirectory());
+        getLog().debug("Executing command line:");
+        getLog().debug(cl.toString());
 
         int exitCode;
         try
         {
-            exitCode = CommandLineUtils.executeCommandLine( cl, stdout, stderr );
+            exitCode = CommandLineUtils.executeCommandLine(cl, stdout, stderr);
         }
-        catch ( CommandLineException e )
+        catch (CommandLineException e)
         {
-            throw new MojoExecutionException( "Unable to execute Cobertura.", e );
+            throw new MojoExecutionException("Unable to execute Cobertura.", e);
         }
 
-        getLog().debug( "exit code: " + exitCode );
+        getLog().debug("exit code: " + exitCode);
 
         String output = stdout.getOutput();
 
-        if ( output.trim().length() > 0 )
+        if (output.trim().length() > 0)
         {
-            getLog().debug( "--------------------" );
-            getLog().debug( " Standard output from the Cobertura task:" );
-            getLog().debug( "--------------------" );
-            getLog().info( output );
-            getLog().debug( "--------------------" );
+            getLog().debug("--------------------");
+            getLog().debug(" Standard output from the Cobertura task:");
+            getLog().debug("--------------------");
+            getLog().info(output);
+            getLog().debug("--------------------");
         }
 
         String stream = stderr.getOutput();
 
-        if ( stream.trim().length() > 0 )
+        if (stream.trim().length() > 0)
         {
-            getLog().debug( "--------------------" );
-            getLog().debug( " Standard error from the Cobertura task:" );
-            getLog().debug( "--------------------" );
-            getLog().error( stderr.getOutput() );
-            getLog().debug( "--------------------" );
+            getLog().debug("--------------------");
+            getLog().debug(" Standard error from the Cobertura task:");
+            getLog().debug("--------------------");
+            getLog().error(stderr.getOutput());
+            getLog().debug("--------------------");
         }
 
         return exitCode;
@@ -261,7 +261,7 @@ public abstract class AbstractTask
 
     public Log getLog()
     {
-        if ( log == null )
+        if (log == null)
         {
             log = new SystemStreamLog();
         }
@@ -277,22 +277,22 @@ public abstract class AbstractTask
     /**
      * @return Returns the pluginClasspathList.
      */
-    public List getPluginClasspathList()
+    public Collection getPluginClasspathList()
     {
         return pluginClasspathList;
     }
 
-    public void setCmdLineArgs( CommandLineArguments cmdLineArgs )
+    public void setCmdLineArgs(CommandLineArguments cmdLineArgs)
     {
         this.cmdLineArgs = cmdLineArgs;
     }
 
-    public void setLog( Log log )
+    public void setLog(Log log)
     {
         this.log = log;
     }
 
-    public void setMaxmem( String maxmem )
+    public void setMaxmem(String maxmem)
     {
         this.maxmem = maxmem;
     }
@@ -300,8 +300,8 @@ public abstract class AbstractTask
     /**
      * @param pluginClasspathList The pluginClasspathList to set.
      */
-    public void setPluginClasspathList( List pluginClasspathList )
+    public void setPluginClasspathList(Collection pluginClasspathList)
     {
-        this.pluginClasspathList = Collections.unmodifiableList( pluginClasspathList );
+        this.pluginClasspathList = Collections.unmodifiableCollection(pluginClasspathList);
     }
 }
